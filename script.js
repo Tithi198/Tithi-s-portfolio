@@ -1,9 +1,7 @@
-// DOM Content Loaded - Main Initialization
-document.addEventListener('DOMContentLoaded', function() {
-    // Set current year for copyright
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
-    
-    // Initialize all functionality
+// Main website interactions
+// Responsive-safe navigation, carousel, animations, and form handling.
+document.addEventListener('DOMContentLoaded', () => {
+    setCurrentYear();
     initNavigation();
     initTypingEffect();
     initSkillBars();
@@ -13,447 +11,487 @@ document.addEventListener('DOMContentLoaded', function() {
     initServices();
     initScrollToTop();
     initThemeToggle();
+    initHeroParallax();
 });
 
-// Auto-typing effect for the name
-function initTypingEffect() {
-    const typedNameElement = document.getElementById('typed-name');
-    const nameText = 'Marzana Rahman';
-    let charIndex = 0;
-    
-    function typeCharacter() {
-        if (charIndex < nameText.length) {
-            typedNameElement.textContent += nameText.charAt(charIndex);
-            charIndex++;
-            setTimeout(typeCharacter, 100); // Adjust speed here (milliseconds)
-        } else {
-            // After typing is complete, start the cursor blinking
-            setTimeout(() => {
-                const cursor = document.querySelector('.typing-cursor');
-                if (cursor) {
-                    cursor.style.animation = 'blink 1s infinite';
-                }
-            }, 500);
-        }
-    }
-    
-    // Clear the element and start typing
-    typedNameElement.textContent = '';
-    setTimeout(typeCharacter, 1000); // Delay before starting to type
+function setCurrentYear() {
+    const currentYear = document.getElementById('currentYear');
+    if (currentYear) currentYear.textContent = new Date().getFullYear();
 }
 
-// Navigation functionality
+function getHeaderOffset() {
+    const header = document.querySelector('header');
+    return header ? header.offsetHeight + 12 : 80;
+}
+
 function initNavigation() {
+    const header = document.querySelector('header');
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
-    
-    hamburger.addEventListener('click', function() {
-        this.classList.toggle('active');
-        navLinks.classList.toggle('active');
-    });
-    
-    // Close mobile menu when clicking on a link
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-        });
-    });
-    
-    // Sticky header on scroll
-    window.addEventListener('scroll', function() {
-        const header = document.querySelector('header');
-        if (window.scrollY > 100) {
-            header.style.padding = '10px 0';
-            header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
-        } else {
-            header.style.padding = '20px 0';
-            header.style.boxShadow = 'none';
+    const links = document.querySelectorAll('.nav-links a[href^="#"]');
+    const sections = [...document.querySelectorAll('main section[id]')];
+
+    if (!hamburger || !navLinks) return;
+
+    hamburger.setAttribute('role', 'button');
+    hamburger.setAttribute('tabindex', '0');
+    hamburger.setAttribute('aria-label', 'Toggle navigation menu');
+    hamburger.setAttribute('aria-expanded', 'false');
+
+    const openMenu = () => {
+        hamburger.classList.add('active');
+        navLinks.classList.add('active');
+        document.body.classList.add('menu-open');
+        hamburger.setAttribute('aria-expanded', 'true');
+    };
+
+    const closeMenu = () => {
+        hamburger.classList.remove('active');
+        navLinks.classList.remove('active');
+        document.body.classList.remove('menu-open');
+        hamburger.setAttribute('aria-expanded', 'false');
+    };
+
+    const toggleMenu = () => {
+        navLinks.classList.contains('active') ? closeMenu() : openMenu();
+    };
+
+    hamburger.addEventListener('click', toggleMenu);
+    hamburger.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            toggleMenu();
         }
     });
+
+    document.addEventListener('click', (event) => {
+        if (!navLinks.classList.contains('active')) return;
+        if (!navLinks.contains(event.target) && !hamburger.contains(event.target)) closeMenu();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeMenu();
+    });
+
+    window.addEventListener('resize', debounce(() => {
+        if (window.innerWidth > 768) closeMenu();
+    }, 150));
+
+    links.forEach((link) => {
+        link.addEventListener('click', (event) => {
+            const target = document.querySelector(link.getAttribute('href'));
+            if (!target) return;
+
+            event.preventDefault();
+            closeMenu();
+
+            window.scrollTo({
+                top: target.offsetTop - getHeaderOffset(),
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    const updateHeader = () => {
+        if (!header) return;
+        header.classList.toggle('scrolled', window.scrollY > 60);
+    };
+
+    const updateActiveLink = () => {
+        if (!sections.length || !links.length) return;
+        const currentPosition = window.scrollY + getHeaderOffset() + 40;
+        let activeId = sections[0].id;
+
+        sections.forEach((section) => {
+            if (section.offsetTop <= currentPosition) activeId = section.id;
+        });
+
+        links.forEach((link) => {
+            link.classList.toggle('active', link.getAttribute('href') === `#${activeId}`);
+        });
+    };
+
+    updateHeader();
+    updateActiveLink();
+
+    window.addEventListener('scroll', throttle(() => {
+        updateHeader();
+        updateActiveLink();
+    }, 100), { passive: true });
 }
 
-// Animate skill bars on scroll
+function initTypingEffect() {
+    const typedNameElement = document.getElementById('typed-name');
+    if (!typedNameElement) return;
+
+    const nameText = 'Marzana Rahman';
+    const cursor = document.querySelector('.typing-cursor');
+    let charIndex = 0;
+
+    typedNameElement.textContent = '';
+    if (cursor) cursor.style.animation = 'none';
+
+    const typeCharacter = () => {
+        if (charIndex < nameText.length) {
+            typedNameElement.textContent += nameText.charAt(charIndex);
+            charIndex += 1;
+            window.setTimeout(typeCharacter, 95);
+        } else if (cursor) {
+            cursor.style.animation = 'blink 1s infinite';
+        }
+    };
+
+    window.setTimeout(typeCharacter, 650);
+}
+
 function initSkillBars() {
     const skillBars = document.querySelectorAll('.skill-level');
-    
+    if (!skillBars.length) return;
+
+    const fillBar = (bar) => {
+        const width = Number(bar.getAttribute('data-width')) || 0;
+        bar.style.width = `${Math.min(Math.max(width, 0), 100)}%`;
+    };
+
+    if (!('IntersectionObserver' in window)) {
+        skillBars.forEach(fillBar);
+        return;
+    }
+
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
             if (entry.isIntersecting) {
-                const width = entry.target.getAttribute('data-width');
-                entry.target.style.width = width + '%';
+                fillBar(entry.target);
                 observer.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.5 });
-    
-    skillBars.forEach(bar => {
-        observer.observe(bar);
-    });
+    }, { threshold: 0.35 });
+
+    skillBars.forEach((bar) => observer.observe(bar));
 }
 
-// Projects carousel functionality
 function initCarousel() {
     const track = document.getElementById('carouselTrack');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const indicatorsContainer = document.getElementById('indicators');
-    
+
     if (!track || !prevBtn || !nextBtn || !indicatorsContainer) return;
-    
-    const projects = document.querySelectorAll('.project-card');
-    const projectCount = projects.length;
+
+    const projects = [...track.querySelectorAll('.project-card')];
+    if (!projects.length) return;
+
     let currentIndex = 0;
-    
-    // Create indicators
-    for (let i = 0; i < projectCount; i++) {
-        const indicator = document.createElement('div');
-        indicator.classList.add('indicator');
-        if (i === 0) indicator.classList.add('active');
-        indicator.addEventListener('click', () => goToSlide(i));
-        indicatorsContainer.appendChild(indicator);
-    }
-    
-    const indicators = document.querySelectorAll('.indicator');
-    
-    // Update carousel based on screen size
-    function updateCarousel() {
-        setTrackPosition();
-    }
-    
+    let itemsPerView = getItemsPerView();
+    let autoSlideId = null;
+    let touchStartX = 0;
+
     function getItemsPerView() {
-        if (window.innerWidth < 768) return 1;
-        if (window.innerWidth < 992) return 2;
+        if (window.innerWidth <= 768) return 1;
+        if (window.innerWidth <= 1024) return 2;
         return 3;
     }
-    
-    function setTrackPosition() {
-        const itemsPerView = getItemsPerView();
-        const slideWidth = (100 / itemsPerView);
-        track.style.transform = `translateX(-${currentIndex * slideWidth}%)`;
-        
-        // Update indicators
-        indicators.forEach((indicator, index) => {
-            indicator.classList.toggle('active', index === currentIndex);
+
+    function getMaxIndex() {
+        return Math.max(0, projects.length - itemsPerView);
+    }
+
+    function clampIndex(index) {
+        return Math.min(Math.max(index, 0), getMaxIndex());
+    }
+
+    function buildIndicators() {
+        indicatorsContainer.innerHTML = '';
+        const indicatorCount = getMaxIndex() + 1;
+
+        for (let index = 0; index < indicatorCount; index += 1) {
+            const indicator = document.createElement('button');
+            indicator.type = 'button';
+            indicator.className = 'indicator';
+            indicator.setAttribute('aria-label', `Go to project slide ${index + 1}`);
+            indicator.addEventListener('click', () => goToSlide(index));
+            indicatorsContainer.appendChild(indicator);
+        }
+    }
+
+    function updateCarousel() {
+        itemsPerView = getItemsPerView();
+        currentIndex = clampIndex(currentIndex);
+
+        const targetProject = projects[currentIndex];
+        const offset = targetProject ? targetProject.offsetLeft : 0;
+        track.style.transform = `translateX(-${offset}px)`;
+
+        indicatorsContainer.querySelectorAll('.indicator').forEach((indicator, index) => {
+            const isActive = index === currentIndex;
+            indicator.classList.toggle('active', isActive);
+            indicator.setAttribute('aria-current', isActive ? 'true' : 'false');
         });
     }
-    
+
     function goToSlide(index) {
-        const itemsPerView = getItemsPerView();
-        currentIndex = Math.max(0, Math.min(index, projectCount - itemsPerView));
-        setTrackPosition();
+        currentIndex = clampIndex(index);
+        updateCarousel();
     }
-    
+
     function nextSlide() {
-        const itemsPerView = getItemsPerView();
-        if (currentIndex < projectCount - itemsPerView) {
-            goToSlide(currentIndex + 1);
-        } else {
-            goToSlide(0);
-        }
+        currentIndex = currentIndex >= getMaxIndex() ? 0 : currentIndex + 1;
+        updateCarousel();
     }
-    
+
     function prevSlide() {
-        const itemsPerView = getItemsPerView();
-        if (currentIndex > 0) {
-            goToSlide(currentIndex - 1);
-        } else {
-            goToSlide(projectCount - itemsPerView);
-        }
+        currentIndex = currentIndex <= 0 ? getMaxIndex() : currentIndex - 1;
+        updateCarousel();
     }
-    
-    // Event listeners
+
+    function startAutoSlide() {
+        stopAutoSlide();
+        autoSlideId = window.setInterval(nextSlide, 5000);
+    }
+
+    function stopAutoSlide() {
+        if (autoSlideId) window.clearInterval(autoSlideId);
+        autoSlideId = null;
+    }
+
     prevBtn.addEventListener('click', prevSlide);
     nextBtn.addEventListener('click', nextSlide);
-    
-    // Handle window resize
-    window.addEventListener('resize', updateCarousel);
-    
-    // Initialize carousel
+
+    track.addEventListener('mouseenter', stopAutoSlide);
+    track.addEventListener('mouseleave', startAutoSlide);
+    track.addEventListener('focusin', stopAutoSlide);
+    track.addEventListener('focusout', startAutoSlide);
+
+    track.addEventListener('touchstart', (event) => {
+        touchStartX = event.touches[0].clientX;
+        stopAutoSlide();
+    }, { passive: true });
+
+    track.addEventListener('touchend', (event) => {
+        const touchEndX = event.changedTouches[0].clientX;
+        const difference = touchStartX - touchEndX;
+
+        if (Math.abs(difference) > 45) {
+            difference > 0 ? nextSlide() : prevSlide();
+        }
+
+        startAutoSlide();
+    }, { passive: true });
+
+    window.addEventListener('resize', debounce(() => {
+        const newItemsPerView = getItemsPerView();
+        if (newItemsPerView !== itemsPerView) buildIndicators();
+        updateCarousel();
+    }, 150));
+
+    buildIndicators();
     updateCarousel();
-    
-    // Auto slide every 5 seconds
-    setInterval(nextSlide, 5000);
+    startAutoSlide();
 }
 
-// Contact form functionality
 function initContactForm() {
     const contactForm = document.getElementById('contactForm');
-    
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const name = this.querySelector('input[type="text"]').value;
-            const email = this.querySelector('input[type="email"]').value;
-            const message = this.querySelector('textarea').value;
-            
-            // Simple validation
-            if (!name || !email || !message) {
-                alert('Please fill in all fields');
-                return;
-            }
-            
-            // Email validation
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                alert('Please enter a valid email address');
-                return;
-            }
-            
-            // In a real application, you would send the form data to a server here
-            // For this example, we'll just show a success message
-            alert('Thank you for your message! I will get back to you soon.');
-            this.reset();
-        });
-    }
-}
+    if (!contactForm) return;
 
-// Scroll animations for sections
-function initScrollAnimations() {
-    const sections = document.querySelectorAll('section');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate');
-            }
-        });
-    }, { threshold: 0.1 });
-    
-    sections.forEach(section => {
-        observer.observe(section);
+    contactForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        if (!validateForm(contactForm)) return;
+
+        alert('Thank you for your message! I will get back to you soon.');
+        contactForm.reset();
     });
 }
 
-// Services Section JavaScript
-function initServices() {
-    const serviceCards = document.querySelectorAll('.service-card');
-    
-    // Add enhanced hover animations
-    serviceCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-10px) scale(1.02)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0) scale(1)';
-        });
-    });
-
-    // Add scroll animation for services
-    const servicesSection = document.querySelector('.services');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const cards = entry.target.querySelectorAll('.service-card');
-                cards.forEach((card, index) => {
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, index * 200);
-                });
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.3 });
-    
-    if (servicesSection) {
-        // Initially hide cards for animation
-        const cards = servicesSection.querySelectorAll('.service-card');
-        cards.forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
-            card.style.transition = 'all 0.6s ease';
-        });
-        
-        observer.observe(servicesSection);
-    }
-}
-
-// Scroll to Top functionality
-function initScrollToTop() {
-    const scrollToTopBtn = document.getElementById('scrollToTop');
-    
-    if (scrollToTopBtn) {
-        // Show/hide scroll to top button
-        window.addEventListener('scroll', function() {
-            if (window.pageYOffset > 300) {
-                scrollToTopBtn.style.display = 'flex';
-            } else {
-                scrollToTopBtn.style.display = 'none';
-            }
-        });
-        
-        // Smooth scroll to top when clicked
-        scrollToTopBtn.addEventListener('click', function() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-    }
-}
-
-
-// Enhanced smooth scrolling for all anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const headerOffset = 80;
-            const elementPosition = target.offsetTop;
-            const offsetPosition = elementPosition - headerOffset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
-        }
-    });
-});
-
-
-// Theme toggle functionality
-function initThemeToggle() {
-    const themeToggle = document.querySelector('.theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
-            document.body.classList.toggle('dark-theme');
-            localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
-        });
-        
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-theme');
-        }
-    }
-}
-
-// Enhanced smooth scrolling for all anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const headerOffset = 80;
-            const elementPosition = target.offsetTop;
-            const offsetPosition = elementPosition - headerOffset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
-        }
-    });
-});
-
-// CV Download button
-document.getElementById('download-cv')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    
-    // In a real application, this would download the actual CV file
-    // For demonstration, we'll show a message
-    alert('CV download would start in a real implementation. The CV is available at: https://drive.google.com/file/d/1wd5xOQyKJ-s0sZ278MGdMDtt2BSThfmt/view?usp=drive_link');
-});
-
-// Parallax effect for hero section
-window.addEventListener('scroll', function() {
-    const scrolled = window.pageYOffset;
-    const heroSection = document.querySelector('.hero');
-    const heroContent = document.querySelector('.hero-content');
-    const heroImage = document.querySelector('.hero-image');
-    
-    if (heroSection && heroContent && heroImage) {
-        const rate = scrolled * -0.5;
-        heroContent.style.transform = `translateY(${rate}px)`;
-        heroImage.style.transform = `translateY(${rate * 0.8}px)`;
-    }
-});
-
-// Add loading animation
-window.addEventListener('load', function() {
-    const loader = document.querySelector('.loader');
-    if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.style.display = 'none';
-        }, 500);
-    }
-    
-    // Trigger animations after page load
-    const animatedElements = document.querySelectorAll('.animate-on-load');
-    animatedElements.forEach((element, index) => {
-        setTimeout(() => {
-            element.classList.add('animated');
-        }, index * 100);
-    });
-});
-
-// Enhanced form validation
 function validateForm(form) {
-    const inputs = form.querySelectorAll('input, textarea');
+    const fields = [...form.querySelectorAll('input, textarea')];
     let isValid = true;
-    
-    inputs.forEach(input => {
-        const value = input.value.trim();
-        const errorElement = input.parentNode.querySelector('.error-message');
-        
-        // Remove existing error message
-        if (errorElement) {
-            errorElement.remove();
-        }
-        
-        // Remove error styling
-        input.classList.remove('error');
-        
-        // Check if field is empty
+
+    fields.forEach((field) => {
+        const value = field.value.trim();
+        const existingError = field.parentElement.querySelector('.error-message');
+        if (existingError) existingError.remove();
+        field.classList.remove('error');
+
         if (!value) {
-            showFieldError(input, 'This field is required');
+            showFieldError(field, 'This field is required');
             isValid = false;
             return;
         }
-        
-        // Email validation
-        if (input.type === 'email') {
+
+        if (field.type === 'email') {
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailPattern.test(value)) {
-                showFieldError(input, 'Please enter a valid email address');
+                showFieldError(field, 'Please enter a valid email address');
                 isValid = false;
             }
         }
-        
-        // Name validation
-        if (input.type === 'text' && input.placeholder.includes('Name')) {
-            if (value.length < 2) {
-                showFieldError(input, 'Name must be at least 2 characters long');
-                isValid = false;
-            }
+
+        if (field.type === 'text' && value.length < 2) {
+            showFieldError(field, 'Name must be at least 2 characters long');
+            isValid = false;
         }
-        
-        // Message validation
-        if (input.tagName === 'TEXTAREA') {
-            if (value.length < 10) {
-                showFieldError(input, 'Message must be at least 10 characters long');
-                isValid = false;
-            }
+
+        if (field.tagName === 'TEXTAREA' && value.length < 10) {
+            showFieldError(field, 'Message must be at least 10 characters long');
+            isValid = false;
         }
     });
-    
+
     return isValid;
 }
 
-function showFieldError(input, message) {
-    input.classList.add('error');
+function showFieldError(field, message) {
+    field.classList.add('error');
+
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
     errorDiv.textContent = message;
     errorDiv.style.color = '#e74c3c';
-    errorDiv.style.fontSize = '0.8rem';
-    errorDiv.style.marginTop = '5px';
-    input.parentNode.appendChild(errorDiv);
+    errorDiv.style.fontSize = '0.85rem';
+    errorDiv.style.marginTop = '6px';
+
+    field.parentElement.appendChild(errorDiv);
+}
+
+function initScrollAnimations() {
+    const sections = document.querySelectorAll('section');
+    if (!sections.length || !('IntersectionObserver' in window)) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) entry.target.classList.add('animate');
+        });
+    }, { threshold: 0.1 });
+
+    sections.forEach((section) => observer.observe(section));
+}
+
+function initServices() {
+    const servicesSection = document.querySelector('.services');
+    const serviceCards = document.querySelectorAll('.service-card');
+    if (!servicesSection || !serviceCards.length) return;
+
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    if (canHover) {
+        serviceCards.forEach((card) => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    }
+
+    if (!('IntersectionObserver' in window)) return;
+
+    serviceCards.forEach((card) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+
+            serviceCards.forEach((card, index) => {
+                window.setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 160);
+            });
+
+            observer.unobserve(entry.target);
+        });
+    }, { threshold: 0.25 });
+
+    observer.observe(servicesSection);
+}
+
+function initScrollToTop() {
+    const scrollToTopBtn = document.getElementById('scrollToTop');
+    if (!scrollToTopBtn) return;
+
+    const updateButton = () => {
+        scrollToTopBtn.classList.toggle('is-visible', window.scrollY > 320);
+    };
+
+    updateButton();
+
+    window.addEventListener('scroll', throttle(updateButton, 100), { passive: true });
+    scrollToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+function initThemeToggle() {
+    const themeToggle = document.querySelector('.theme-toggle');
+    if (!themeToggle) return;
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') document.body.classList.add('dark-theme');
+
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme');
+        localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    });
+}
+
+function initHeroParallax() {
+    const heroContent = document.querySelector('.hero-content');
+    const heroImage = document.querySelector('.hero-image');
+    const allowMotion = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const desktopOnly = window.matchMedia('(min-width: 993px)');
+
+    if (!heroContent || !heroImage || !allowMotion) return;
+
+    let ticking = false;
+
+    const updateParallax = () => {
+        if (!desktopOnly.matches) {
+            heroContent.style.transform = '';
+            heroImage.style.transform = '';
+            ticking = false;
+            return;
+        }
+
+        const scrolled = window.scrollY;
+        const rate = Math.min(scrolled * -0.12, 0);
+        heroContent.style.transform = `translateY(${rate}px)`;
+        heroImage.style.transform = `translateY(${rate * 0.7}px)`;
+        ticking = false;
+    };
+
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(updateParallax);
+            ticking = true;
+        }
+    }, { passive: true });
+
+    window.addEventListener('resize', debounce(updateParallax, 150));
+}
+
+function debounce(callback, delay = 150) {
+    let timeoutId;
+    return (...args) => {
+        window.clearTimeout(timeoutId);
+        timeoutId = window.setTimeout(() => callback(...args), delay);
+    };
+}
+
+function throttle(callback, limit = 100) {
+    let waiting = false;
+    return (...args) => {
+        if (waiting) return;
+        callback(...args);
+        waiting = true;
+        window.setTimeout(() => {
+            waiting = false;
+        }, limit);
+    };
 }

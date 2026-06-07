@@ -221,7 +221,7 @@ nav {
     padding: 100px 0 50px;
     background-color: var(--black);
     color: var(--white);
-    background-image: url('back.jpg');
+    background-image: url('img/back.jpg');
     opacity: none;
 }
 
@@ -339,6 +339,7 @@ nav {
     line-height: 1.7;
     max-width: 700px;
     margin: 0 auto 50px;
+    text-align: left;
 }
 
 .skills-categories {
@@ -1179,5 +1180,573 @@ footer {
     .section-subtitle::before,
     .section-subtitle::after {
         display: none;
+    }
+}
+
+/* =========================================================
+   Responsive polish added by ChatGPT
+   Keeps the original design, but makes every section fluid
+   from large desktops down to small mobile screens.
+   ========================================================= */
+
+html {
+    scroll-padding-top: 90px;
+}
+
+body.menu-open {
+    overflow: hidden;
+}
+
+[id] {
+    scroll-margin-top: 90px;
+}
+
+.container {
+    width: min(100% - 40px, 1200px);
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.section-padding {
+    padding: clamp(56px, 8vw, 90px) 0;
+}
+
+.section-header {
+    margin-bottom: clamp(36px, 6vw, 60px);
+}
+
+.section-title {
+    font-size: clamp(2rem, 6vw, 3rem);
+    line-height: 1.15;
+}
+
+.section-subtitle {
+    font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+}
+
+.btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+header {
+    padding: 18px 0;
+}
+
+header.scrolled {
+    padding: 10px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+nav {
+    width: min(100% - 40px, 1200px);
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.logo {
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.nav-links a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+}
+
+.hamburger {
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+}
+
+.hero {
+    position: relative;
+    min-height: 100svh;
+    padding: clamp(110px, 14vw, 140px) 0 clamp(56px, 8vw, 80px);
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.84), rgba(0, 0, 0, 0.58));
+    pointer-events: none;
+}
+
+.hero .container {
+    position: relative;
+    z-index: 1;
+    gap: clamp(32px, 6vw, 70px);
+}
+
+.hero-content,
+.hero-image {
+    min-width: 0;
+}
+
+.hero-content h1 {
+    font-size: clamp(2.1rem, 8vw, 3.8rem);
+}
+
+.hero-content h2 {
+    font-size: clamp(1.25rem, 4vw, 2rem);
+}
+
+.hero-content p {
+    width: min(100%, 560px);
+}
+
+.hero-buttons {
+    align-items: center;
+}
+
+.image-frame {
+    width: clamp(230px, 35vw, 350px);
+    height: clamp(230px, 35vw, 350px);
+}
+
+.about-content,
+.contact-container,
+.skills-grid,
+.service-cards,
+.carousel-wrapper {
+    min-width: 0;
+}
+
+.about-text {
+    width: min(100%, 760px);
+    font-size: clamp(1rem, 2.2vw, 1.1rem);
+}
+
+.skills-categories {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(18px, 3vw, 30px);
+}
+
+.about .skill-category {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: auto;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.skills-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: clamp(18px, 3vw, 30px);
+}
+
+.skills .skill-category {
+    min-width: 0;
+    max-width: none;
+    height: auto;
+    text-align: left;
+}
+
+.skill-category p,
+.project-info p,
+.service-description,
+.contact-description,
+.footer-content p,
+.education-content p {
+    text-transform: none;
+}
+
+.service-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 40px);
+}
+
+.service-card {
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+}
+
+.carousel-container {
+    width: 100%;
+    overflow: hidden;
+}
+
+.carousel-track {
+    gap: 20px;
+    align-items: stretch;
+    will-change: transform;
+}
+
+.project-card {
+    flex: 0 0 calc((100% - 40px) / 3);
+    margin: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-image {
+    height: clamp(180px, 18vw, 220px);
+}
+
+.project-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.project-links {
+    margin-top: auto;
+    flex-wrap: wrap;
+}
+
+.project-link {
+    min-height: 38px;
+}
+
+.carousel-btn {
+    flex: 0 0 auto;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.indicator {
+    border: 0;
+    padding: 0;
+}
+
+.contact-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+}
+
+.info-item {
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.info-item i {
+    flex: 0 0 40px;
+    margin-right: 0;
+}
+
+.info-item span {
+    overflow-wrap: anywhere;
+}
+
+.contact-form,
+.contact-info {
+    min-width: 0;
+}
+
+.form-group input,
+.form-group textarea {
+    font-size: 16px;
+}
+
+.scroll-to-top.is-visible {
+    display: flex;
+}
+
+@media (max-width: 1024px) {
+    .nav-links {
+        gap: 20px;
+    }
+
+    .project-card {
+        flex-basis: calc((100% - 20px) / 2);
+    }
+
+    .service-cards,
+    .skills-categories {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .about .skill-category:last-child,
+    .service-card:last-child {
+        grid-column: 1 / -1;
+        max-width: 520px;
+        justify-self: center;
+    }
+}
+
+@media (max-width: 992px) {
+    .hero .container {
+        flex-direction: column-reverse;
+        text-align: center;
+    }
+
+    .hero-content p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .hero::before {
+        background: rgba(0, 0, 0, 0.72);
+    }
+
+    .contact-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    html {
+        scroll-padding-top: 78px;
+    }
+
+    [id] {
+        scroll-margin-top: 78px;
+    }
+
+    .container,
+    nav {
+        width: min(100% - 30px, 1200px);
+    }
+
+    header,
+    header.scrolled {
+        padding: 12px 0;
+    }
+
+    .logo {
+        font-size: clamp(1.35rem, 5vw, 1.65rem);
+        max-width: calc(100vw - 95px);
+        white-space: normal;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 68px;
+        left: 15px;
+        right: 15px;
+        width: auto;
+        max-height: calc(100dvh - 84px);
+        overflow-y: auto;
+        background-color: rgba(255, 255, 255, 0.98);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        padding: 16px;
+        border-radius: 14px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+        transform: translateY(-135%);
+        opacity: 0;
+        visibility: hidden;
+        transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+        z-index: 999;
+    }
+
+    .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .nav-links li a {
+        width: 100%;
+        justify-content: center;
+        border-radius: 10px;
+    }
+
+    .nav-links li a:hover,
+    .nav-links li a.active {
+        background: rgba(33, 150, 243, 0.08);
+        color: var(--blue-color);
+    }
+
+    .nav-links li a::after {
+        display: none;
+    }
+
+    .hero {
+        min-height: auto;
+        padding-top: 110px;
+    }
+
+    .hero-buttons {
+        gap: 14px;
+    }
+
+    .skills-categories,
+    .service-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .about .skill-category,
+    .about .skill-category:last-child,
+    .service-card,
+    .service-card:last-child {
+        grid-column: auto;
+        max-width: none;
+        min-height: auto;
+    }
+
+    .education-container::before {
+        left: 24px;
+    }
+
+    .education-item {
+        gap: 18px;
+    }
+
+    .education-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1rem;
+    }
+
+    .education-content {
+        padding-left: 0;
+    }
+
+    .education-content h3 {
+        font-size: clamp(1.15rem, 4vw, 1.35rem);
+    }
+
+    .project-card {
+        flex-basis: 100%;
+    }
+
+    .carousel-controls {
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .carousel-indicators {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .contact-form {
+        padding: clamp(22px, 6vw, 30px);
+    }
+}
+
+@media (max-width: 576px) {
+    .container,
+    nav {
+        width: min(100% - 24px, 1200px);
+    }
+
+    .section-subtitle::before,
+    .section-subtitle::after {
+        display: none;
+    }
+
+    .hero-buttons {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hero-buttons .btn {
+        width: 100%;
+    }
+
+    .image-frame {
+        width: min(74vw, 260px);
+        height: min(74vw, 260px);
+    }
+
+    .skill-category,
+    .service-card,
+    .project-info,
+    .contact-form {
+        padding: 22px;
+    }
+
+    .service-icon {
+        width: 68px;
+        height: 68px;
+        font-size: 2rem;
+    }
+
+    .service-name {
+        font-size: 1.45rem;
+    }
+
+    .project-image {
+        height: 190px;
+    }
+
+    .project-tech span {
+        font-size: 0.75rem;
+    }
+
+    .social-icons,
+    .project-links {
+        gap: 10px;
+    }
+
+    .footer-logo {
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .hero-content p,
+    .about-text,
+    .contact-description {
+        font-size: 0.96rem;
+    }
+
+    .education-item {
+        gap: 14px;
+    }
+
+    .education-icon {
+        width: 44px;
+        height: 44px;
+    }
+
+    .education-container::before {
+        left: 21px;
+    }
+
+    .carousel-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .scroll-to-top {
+        right: 16px;
+        bottom: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
     }
 }
