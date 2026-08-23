@@ -1750,6 +1750,3 @@ nav {
         transition-duration: 0.001ms !important;
     }
 }
-
-/* Performance optimizations */
-@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; animation-duration: 0.01ms !important; } }
